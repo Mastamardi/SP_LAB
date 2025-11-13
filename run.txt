@@ -1,0 +1,165 @@
+================================================================================
+FRAUD DETECTION PIPELINE - STARTUP GUIDE
+================================================================================
+
+STEP 1: Start Docker Services (Infrastructure)
+-----------------------------------------------
+cd "/Users/omkarmastamardi/Desktop/Sp Lab"
+docker compose up -d
+
+This starts:
+- Zookeeper (port 2181)
+- Kafka (port 9092)
+- Redis (port 6379)
+- Prometheus (port 9090)
+- Grafana (port 3000)
+
+Wait ~10 seconds for services to be ready, then verify:
+docker compose ps
+
+================================================================================
+
+STEP 2: Start Kafka Producer (Stream Data)
+--------------------------------------------
+Open a NEW terminal window/tab and run:
+
+cd "/Users/omkarmastamardi/Desktop/Sp Lab"
+python kafka_producer/producer.py \
+  --csv Real_fraud_dataset.csv \
+  --bootstrap localhost:9092 \
+  --topic transactions \
+  --rate 5 \
+  --loop
+
+This will continuously stream transaction data from the CSV file to Kafka.
+
+================================================================================
+
+STEP 3: Start Spark Streaming Job (Fraud Detection)
+----------------------------------------------------
+Open ANOTHER terminal window/tab and run:
+
+cd "/Users/omkarmastamardi/Desktop/Sp Lab"
+spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 \
+  spark_job/streaming_job.py \
+  --bootstrap localhost:9092 \
+  --input_topic transactions \
+  --alerts_topic fraud_alerts \
+  --redis_host localhost \
+  --redis_port 6379 \
+  --prometheus_port 8000 \
+  --models_dir models/artifacts
+
+This processes transactions from Kafka and performs fraud detection.
+
+================================================================================
+
+STEP 4: Start Streamlit Dashboard
+----------------------------------
+Open ANOTHER terminal window/tab and run:
+
+cd "/Users/omkarmastamardi/Desktop/Sp Lab"
+streamlit run streamlit_app/app.py \
+  -- \
+  --redis_host localhost \
+  --redis_port 6379 \
+  --prometheus_url http://localhost:9090
+
+The dashboard will be available at: http://localhost:8501
+
+================================================================================
+
+STEP 5: Access Your Services
+-----------------------------
+
+1. Streamlit Dashboard: http://localhost:8501
+   - Real-time fraud detection dashboard
+   - Transaction predictions with visual highlights
+   - Live metrics (throughput, latency, precision, recall)
+
+2. Grafana: http://localhost:3000
+   - Login: admin / admin
+   - Add Prometheus data source: http://prometheus:9090
+   - Import dashboard from: grafana/dashboard.json
+
+3. Prometheus: http://localhost:9090
+   - Query metrics directly
+   - Example queries:
+     * rate(kafka_messages_consumed_total[5s])
+     * spark_processing_latency_ms
+     * throughput_msgs_per_sec
+     * xgb_probability_avg
+
+================================================================================
+
+VERIFICATION COMMANDS
+----------------------
+
+Check if all services are running:
+
+# Docker services
+docker compose ps
+
+# Check if Kafka producer is running
+ps aux | grep "producer.py" | grep -v grep
+
+# Check if Spark job is running
+ps aux | grep "streaming_job.py" | grep -v grep
+
+# Check if Streamlit is running
+ps aux | grep "streamlit" | grep -v grep
+
+# Test Prometheus scraping
+curl http://localhost:8000/metrics | head -20
+
+================================================================================
+
+TO STOP ALL SERVICES
+---------------------
+
+# Stop Python/Spark services
+pkill -f "kafka_producer/producer.py"
+pkill -f "spark_job/streaming_job.py"
+pkill -f "streamlit run streamlit_app/app.py"
+pkill -f "spark-submit"
+
+# Stop Docker services
+cd "/Users/omkarmastamardi/Desktop/Sp Lab"
+docker compose down
+
+================================================================================
+
+TROUBLESHOOTING
+---------------
+
+1. If Prometheus shows "down" for spark_job:
+   - Verify Spark is exposing metrics: curl http://localhost:8000/metrics
+   - Check Prometheus config: metrics/prometheus.yml
+   - Restart Prometheus: docker compose restart prometheus
+
+2. If Streamlit shows errors:
+   - Make sure the file has correct indentation
+   - Check that Redis is running: docker compose ps | grep redis
+
+3. If no data in Grafana:
+   - Ensure Prometheus data source is added (http://prometheus:9090)
+   - Wait a few minutes for data to accumulate
+   - Check Prometheus directly at http://localhost:9090
+
+4. If Kafka producer fails:
+   - Ensure Kafka is running: docker compose ps | grep kafka
+   - Check Kafka is accessible: nc -z localhost 9092
+
+================================================================================
+
+NOTES
+-----
+- The producer runs in a loop, continuously streaming the dataset
+- Spark processes messages in micro-batches
+- Prometheus scrapes metrics every 1 second
+- Streamlit dashboard auto-refreshes every 1 second
+- All services run independently - you can stop/restart them individually
+
+================================================================================
+

@@ -1,0 +1,37 @@
+{
+  "device_types": [
+    "Mobile",
+    "POS",
+    "Web"
+  ],
+  "categories": [
+    "Clothing",
+    "Electronics",
+    "Entertainment",
+    "Food",
+    "Health",
+    "Others",
+    "Travel",
+    "Utilities"
+  ],
+  "feature_order": [
+    "amount",
+    "avg_transaction_amount",
+    "previous_transactions",
+    "is_international",
+    "is_high_risk_country",
+    "amount_to_avg_ratio",
+    "hour_of_day",
+    "device_type__Mobile",
+    "device_type__POS",
+    "device_type__Web",
+    "category__Clothing",
+    "category__Electronics",
+    "category__Entertainment",
+    "category__Food",
+    "category__Health",
+    "category__Others",
+    "category__Travel",
+    "category__Utilities"
+  ]
+}

@@ -1,0 +1,13 @@
+pyspark==3.5.1
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.2
+xgboost==2.1.1
+kafka-python-ng==2.2.3
+redis==5.0.7
+pyyaml==6.0.2
+prometheus-client==0.20.0
+streamlit==1.39.0
+python-dateutil==2.9.0.post0
+requests==2.32.3
+six==1.17.0

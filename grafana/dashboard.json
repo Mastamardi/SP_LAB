@@ -1,0 +1,49 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "iteration": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Throughput msgs/sec",
+      "targets": [{"expr": "rate(kafka_messages_consumed_total[5s])", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Processing latency (ms)",
+      "targets": [{"expr": "spark_processing_latency_ms", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+    },
+    {
+      "type": "timeseries",
+      "title": "Inference latency (ms)",
+      "targets": [
+        {"expr": "histogram_quantile(0.50, sum by (le) (rate(model_inference_latency_ms_bucket[1m])))", "refId": "A", "legendFormat": "p50"},
+        {"expr": "histogram_quantile(0.95, sum by (le) (rate(model_inference_latency_ms_bucket[1m])))", "refId": "B", "legendFormat": "p95"}
+      ],
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+    },
+    {
+      "type": "stat",
+      "title": "Fraud ratio % (last 1m)",
+      "targets": [{"expr": "100 * (sum_over_time(predictions_total{label=\"fraud\"}[1m])) / clamp_min(sum_over_time(predictions_total[1m]), 1)", "refId": "A"}],
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+    }
+  ],
+  "refresh": "1s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["fraud", "spark", "kafka"],
+  "templating": {"list": []},
+  "time": {"from": "now-15m", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Fraud Detection Realtime",
+  "uid": "fraud-realtime",
+  "version": 1
+}

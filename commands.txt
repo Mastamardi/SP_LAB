@@ -1,0 +1,69 @@
+# ==============================================================================
+# FRAUD DETECTION PIPELINE - ONE-LINER COMMANDS
+# Place: /Users/omkarmastamardi/Desktop/Sp Lab/commands.txt
+# ==============================================================================
+
+# 0) Start Docker Desktop (macOS)
+open -a Docker
+
+# 1) Start infrastructure (Zookeeper, Kafka, Redis, Prometheus, Grafana)
+cd "/Users/omkarmastamardi/Desktop/Sp Lab" && docker compose up -d
+
+# 1.1) Verify containers
+cd "/Users/omkarmastamardi/Desktop/Sp Lab" && docker compose ps
+
+# 2) Start Kafka Producer (streams CSV to Kafka topic `transactions`)
+cd "/Users/omkarmastamardi/Desktop/Sp Lab" && \
+nohup python kafka_producer/producer.py \
+  --csv Real_fraud_dataset.csv \
+  --bootstrap localhost:9092 \
+  --topic transactions \
+  --rate 5 \
+  --loop > /tmp/kafka_producer.out 2>&1 &
+
+# 3) Start Spark Streaming Job (reads Kafka, writes alerts/metrics)
+cd "/Users/omkarmastamardi/Desktop/Sp Lab" && \
+nohup spark-submit \
+  --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 \
+  spark_job/streaming_job.py \
+  --bootstrap localhost:9092 \
+  --input_topic transactions \
+  --alerts_topic fraud_alerts \
+  --redis_host localhost \
+  --redis_port 6379 \
+  --prometheus_port 8000 \
+  --models_dir models/artifacts > /tmp/spark_job.out 2>&1 &
+
+# 4) Start Streamlit Dashboard
+cd "/Users/omkarmastamardi/Desktop/Sp Lab" && \
+nohup streamlit run streamlit_app/app.py -- \
+  --redis_host localhost \
+  --redis_port 6379 \
+  --prometheus_url http://localhost:9090 > /tmp/streamlit.out 2>&1 &
+
+# 5) Quick checks
+cd "/Users/omkarmastamardi/Desktop/Sp Lab" && docker compose ps
+ps aux | grep "producer.py" | grep -v grep
+ps aux | grep "streaming_job.py" | grep -v grep
+ps aux | grep "streamlit" | grep -v grep
+curl -s http://localhost:8000/metrics | head -20
+
+# 6) Peek Kafka data (transactions)
+docker exec -it splab-kafka-1 bash -lc "kafka-console-consumer --bootstrap-server localhost:9092 --topic transactions --from-beginning --max-messages 5"
+
+# 7) Peek Kafka data (fraud alerts)
+docker exec -it splab-kafka-1 bash -lc "kafka-console-consumer --bootstrap-server localhost:9092 --topic fraud_alerts --from-beginning --max-messages 5"
+
+# 8) Stop everything cleanly
+pkill -f "kafka_producer/producer.py" || true
+pkill -f "spark_job/streaming_job.py" || true
+pkill -f "streamlit run streamlit_app/app.py" || true
+pkill -f "spark-submit" || true
+cd "/Users/omkarmastamardi/Desktop/Sp Lab" && docker compose down
+
+# 9) Optional: reset Spark checkpoints (use if offsets get out of range)
+rm -rf "/Users/omkarmastamardi/Desktop/Sp Lab/spark_job/checkpoints" \
+       "/Users/omkarmastamardi/Desktop/Sp Lab/spark_job/checkpoints_v2"
+
+# End of commands
+# ==============================================================================
