@@ -54,7 +54,7 @@ spark-submit \
   --models_dir models/artifacts
 ```
 
-### 6) Streamlit Dashboard
+### 6) Streamlit Dashboard (Optional)
 ```bash
 streamlit run streamlit_app/app.py \
   -- \
@@ -62,6 +62,35 @@ streamlit run streamlit_app/app.py \
   --redis_port 6379 \
   --prometheus_url http://localhost:9090
 ```
+
+### 7) Web Application (HTML/CSS/JavaScript)
+
+#### Start Backend API Server
+```bash
+python backend_api/server.py
+```
+The API server will run on `http://localhost:5000`
+
+#### Open Frontend
+Simply open `index.html` in a web browser, or serve it using a local web server:
+
+**Option 1: Direct file open**
+- Open `index.html` in your browser (may have CORS limitations)
+
+**Option 2: Python HTTP server**
+```bash
+python -m http.server 8080
+```
+Then open `http://localhost:8080` in your browser
+
+**Option 3: Node.js http-server**
+```bash
+npx http-server -p 8080
+```
+
+The web application includes:
+- **Home Page**: Project information, team details, project flow, problem statement, objectives, methodology, and conclusion
+- **Live Processing Page**: Real-time transaction monitoring with ML predictions, metrics dashboard, and dynamic updates
 
 ### Grafana
 1. Open Grafana at `http://localhost:3000` (admin/admin)
@@ -72,3 +101,4 @@ streamlit run streamlit_app/app.py \
 - Topics are auto-created: `transactions` and `fraud_alerts`.
 - Prometheus scrapes every 1s; dashboard refresh set to 1s.
 - The Spark job writes predictions to Redis with keys `txn:{transaction_id}` and maintains a list `predictions:latest`.
+- The backend API server exposes Redis data via REST endpoints and Server-Sent Events for real-time streaming.

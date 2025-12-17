@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Fraud Detection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .navbar-nav {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-item {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Sections */
+        .page-section {
+            display: none;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        /* Header Section */
+        .header-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .header-section h1 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 2rem;
+        }
+
+        .team-info {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .team-info h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .team-info p {
+            margin: 0.3rem 0;
+            color: var(--text-primary);
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .content-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .content-section p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .content-section ul {
+            margin-left: 2rem;
+            color: var(--text-secondary);
+            line-height: 2;
+        }
+
+        .content-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Live Processing Section */
+        .live-processing {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background-color: var(--success-color);
+        }
+
+        .status-indicator.disconnected {
+            background-color: var(--danger-color);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        /* Metrics Display */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        /* Transactions Table */
+        .transactions-container {
+            max-height: 600px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .transaction-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background-color 0.3s;
+        }
+
+        .transaction-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .transaction-id {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .prediction-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .prediction-normal {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .prediction-faulty {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .transaction-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .transaction-detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transaction-detail-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .navbar-nav {
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="navbar-brand">🔒 Fraud Detection System</div>
+            <ul class="navbar-nav">
+                <li class="nav-item active" onclick="showPage('home')">Home</li>
+                <li class="nav-item" onclick="showPage('live-processing')">Live Processing</li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Home Page -->
+    <div id="home" class="page-section active">
+        <div class="container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <h1>Real-Time Fraud Detection System</h1>
+                <div class="team-info">
+                    <h3>Under Guidance</h3>
+                    <p><strong>Prof. Anupama Kumar</strong></p>
+                    
+                    <h3 style="margin-top: 1.5rem;">Project Made By</h3>
+                    <p><strong>Omkar Babu Mastamardi</strong> - USN: 1RV23AI403</p>
+                    <p><strong>Roopa Iranna Bagalkoti</strong> - USN: 1RV23AI404</p>
+                    <p><strong>Pranshu Bhat</strong> - USN: 1RV22AI071</p>
+                </div>
+            </div>
+
+            <!-- Project Flow -->
+            <div class="content-section">
+                <h2>1. Project Flow</h2>
+                <p>The system follows a streamlined pipeline for real-time fraud detection:</p>
+                <ul>
+                    <li><strong>Input Data → Continuous Stream:</strong> Transaction data is continuously ingested from Kafka topics, ensuring a steady flow of real-time data.</li>
+                    <li><strong>Backend Processing:</strong> The Spark streaming job processes incoming transactions, extracting features and preparing data for ML inference.</li>
+                    <li><strong>ML Model Inference:</strong> Multiple ML models (XGBoost and Isolation Forest) analyze each transaction to detect anomalies and fraudulent patterns.</li>
+                    <li><strong>Result Display on UI:</strong> Predictions are displayed in real-time on the frontend, with clear indicators for Normal (green) or Faulty (red) transactions.</li>
+                </ul>
+            </div>
+
+            <!-- Problem Statement -->
+            <div class="content-section">
+                <h2>2. Problem Statement</h2>
+                <p>In today's digital economy, financial transactions occur at an unprecedented scale and speed. Traditional batch processing systems are insufficient for detecting fraudulent activities in real-time, leading to:</p>
+                <ul>
+                    <li>Delayed fraud detection, allowing malicious transactions to complete before intervention</li>
+                    <li>High false positive rates, causing unnecessary customer friction</li>
+                    <li>Inability to adapt to evolving fraud patterns in real-time</li>
+                    <li>Scalability challenges when processing millions of transactions per day</li>
+                </ul>
+                <p>This system addresses the critical need for <strong>continuous, real-time transaction monitoring</strong> that can instantly identify and flag anomalous or faulty transactions, enabling immediate action to prevent financial losses.</p>
+            </div>
+
+            <!-- Objectives -->
+            <div class="content-section">
+                <h2>3. Objectives</h2>
+                <p>The primary objectives of this system are:</p>
+                <ul>
+                    <li><strong>Real-time Data Processing:</strong> Process streaming transaction data with minimal latency using Apache Spark Streaming and Kafka.</li>
+                    <li><strong>ML-based Fault Detection:</strong> Leverage ensemble ML models (XGBoost + Isolation Forest) to accurately identify fraudulent transactions.</li>
+                    <li><strong>Automation and Accuracy:</strong> Automate the detection process while maintaining high precision and recall rates.</li>
+                    <li><strong>Visual Monitoring Dashboard:</strong> Provide an intuitive, real-time dashboard for monitoring transaction flows and detection results.</li>
+                </ul>
+            </div>
+
+            <!-- Methodology -->
+            <div class="content-section">
+                <h2>4. Methodology</h2>
+                <p>The system architecture implements a microservices-based approach:</p>
+                <ul>
+                    <li><strong>Data Ingestion:</strong> Transaction data is continuously received from Kafka topics, ensuring high-throughput data streaming.</li>
+                    <li><strong>Backend ML Processing:</strong> The Spark streaming job runs ML models (XGBoost and Isolation Forest) on each transaction batch, generating predictions and anomaly scores.</li>
+                    <li><strong>API-based Frontend Integration:</strong> The frontend consumes REST API responses from the backend, enabling seamless data flow and real-time updates.</li>
+                    <li><strong>Dynamic UI Updates:</strong> Results are displayed dynamically without page reloads, using modern web technologies (fetch API, Server-Sent Events) for real-time visualization.</li>
+                </ul>
+            </div>
+
+            <!-- Conclusion -->
+            <div class="content-section">
+                <h2>5. Conclusion</h2>
+                <p>This system efficiently detects fraudulent transactions using a combination of machine learning models and continuous stream processing. By leveraging Apache Spark for distributed processing, Redis for fast data access, and modern web technologies for real-time visualization, the system provides:</p>
+                <ul>
+                    <li>Sub-second latency in fraud detection</li>
+                    <li>Scalable architecture capable of handling high transaction volumes</li>
+                    <li>Accurate predictions through ensemble ML models</li>
+                    <li>Real-time monitoring and alerting capabilities</li>
+                </ul>
+                <p>The integration of streaming data processing with ML inference creates a robust, production-ready fraud detection system that can adapt to changing fraud patterns and scale with business growth.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Processing Page -->
+    <div id="live-processing" class="page-section">
+        <div class="container">
+            <div class="live-processing">
+                <h1 style="color: var(--primary-color); margin-bottom: 1rem;">Real-Time Transaction Processing</h1>
+                
+                <!-- Connection Status -->
+                <div style="margin-bottom: 1.5rem;">
+                    <span class="status-indicator disconnected" id="statusIndicator"></span>
+                    <span id="statusText">Disconnected</span>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" style="display: none;"></div>
+
+                <!-- Controls -->
+                <div class="controls">
+                    <button class="btn btn-success" onclick="startStreaming()">Start Streaming</button>
+                    <button class="btn btn-danger" onclick="stopStreaming()">Stop Streaming</button>
+                    <button class="btn btn-primary" onclick="refreshMetrics()">Refresh Metrics</button>
+                </div>
+
+                <!-- Metrics -->
+                <div class="metrics-grid" id="metricsGrid">
+                    <div class="metric-card">
+                        <div class="metric-label">Throughput</div>
+                        <div class="metric-value" id="throughput">0.00</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">msgs/s</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Processing Latency</div>
+                        <div class="metric-value" id="latency">0.0</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">ms</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Inference Rate</div>
+                        <div class="metric-value" id="inferenceRate">0.00</div>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary);">/s</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Precision</div>
+                        <div class="metric-value" id="precision">0.00</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Recall</div>
+                        <div class="metric-value" id="recall">0.00</div>
+                    </div>
+                </div>
+
+                <!-- Transactions List -->
+                <h2 style="color: var(--primary-color); margin-top: 2rem; margin-bottom: 1rem;">Live Transactions</h2>
+                <div class="transactions-container" id="transactionsContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <p>No transactions yet. Click "Start Streaming" to begin receiving real-time data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        // To change the backend URL, modify the API_BASE_URL below
+        // Example: const API_BASE_URL = 'http://your-server:5000/api';
+        const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
+        let eventSource = null;
+        let metricsInterval = null;
+        let isStreaming = false;
+
+        // Page Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId).classList.add('active');
+            
+            // Update navbar active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // If switching to live processing, check connection
+            if (pageId === 'live-processing' && !isStreaming) {
+                checkBackendHealth();
+            }
+        }
+
+        // Check backend health
+        async function checkBackendHealth() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                if (data.status === 'healthy') {
+                    updateConnectionStatus(true);
+                } else {
+                    updateConnectionStatus(false, 'Backend unhealthy');
+                }
+            } catch (error) {
+                updateConnectionStatus(false, `Cannot connect to backend: ${error.message}`);
+            }
+        }
+
+        // Update connection status
+        function updateConnectionStatus(connected, message = '') {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            if (connected) {
+                indicator.classList.remove('disconnected');
+                indicator.classList.add('connected');
+                statusText.textContent = 'Connected';
+            } else {
+                indicator.classList.remove('connected');
+                indicator.classList.add('disconnected');
+                statusText.textContent = message || 'Disconnected';
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = `Error: ${message}`;
+            errorDiv.style.display = 'block';
+        }
+
+        // Hide error message
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // Start streaming
+        function startStreaming() {
+            if (isStreaming) {
+                return;
+            }
+
+            hideError();
+            isStreaming = true;
+            updateConnectionStatus(true, 'Connecting...');
+
+            // Start Server-Sent Events stream
+            eventSource = new EventSource(`${API_BASE_URL}/predictions/stream`);
+            
+            eventSource.onopen = () => {
+                updateConnectionStatus(true, 'Streaming...');
+            };
+
+            eventSource.onmessage = (event) => {
+                try {
+                    const prediction = JSON.parse(event.data);
+                    addTransaction(prediction);
+                } catch (error) {
+                    console.error('Error parsing prediction:', error);
+                }
+            };
+
+            eventSource.onerror = (error) => {
+                console.error('SSE error:', error);
+                updateConnectionStatus(false, 'Stream error');
+                showError('Failed to maintain connection. Please check backend.');
+            };
+
+            // Start metrics refresh
+            refreshMetrics();
+            metricsInterval = setInterval(refreshMetrics, 2000);
+        }
+
+        // Stop streaming
+        function stopStreaming() {
+            isStreaming = false;
+            
+            if (eventSource) {
+                eventSource.close();
+                eventSource = null;
+            }
+            
+            if (metricsInterval) {
+                clearInterval(metricsInterval);
+                metricsInterval = null;
+            }
+            
+            updateConnectionStatus(false, 'Stopped');
+        }
+
+        // Refresh metrics
+        async function refreshMetrics() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/metrics`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch metrics');
+                }
+                const metrics = await response.json();
+                
+                document.getElementById('throughput').textContent = metrics.throughput.toFixed(2);
+                document.getElementById('latency').textContent = metrics.latency.toFixed(1);
+                document.getElementById('inferenceRate').textContent = metrics.inference_rate.toFixed(2);
+                document.getElementById('precision').textContent = metrics.precision.toFixed(2);
+                document.getElementById('recall').textContent = metrics.recall.toFixed(2);
+                
+                hideError();
+            } catch (error) {
+                console.error('Error fetching metrics:', error);
+                if (isStreaming) {
+                    showError(`Failed to fetch metrics: ${error.message}`);
+                }
+            }
+        }
+
+        // Add transaction to UI
+        function addTransaction(prediction) {
+            const container = document.getElementById('transactionsContainer');
+            
+            // Remove empty state if present
+            const emptyState = container.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            // Create transaction item
+            const transactionDiv = document.createElement('div');
+            transactionDiv.className = 'transaction-item';
+            
+            const isFaulty = prediction.final_decision === 1 || prediction.final_decision === '1';
+            const predictionClass = isFaulty ? 'prediction-faulty' : 'prediction-normal';
+            const predictionText = isFaulty ? '⚠️ Faulty Transaction' : '✓ Normal Transaction';
+
+            transactionDiv.innerHTML = `
+                <div class="transaction-header">
+                    <span class="transaction-id">Transaction ID: ${prediction.transaction_id || 'N/A'}</span>
+                    <span class="prediction-badge ${predictionClass}">${predictionText}</span>
+                </div>
+                <div class="transaction-details">
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Customer ID</span>
+                        <span>${prediction.customer_id || 'N/A'}</span>
+                    </div>
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Amount</span>
+                        <span>$${parseFloat(prediction.amount || 0).toFixed(2)}</span>
+                    </div>
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Merchant</span>
+                        <span>${prediction.merchant_id || 'N/A'}</span>
+                    </div>
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Category</span>
+                        <span>${prediction.category || 'N/A'}</span>
+                    </div>
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Location</span>
+                        <span>${prediction.location || 'N/A'}</span>
+                    </div>
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Device</span>
+                        <span>${prediction.device_type || 'N/A'}</span>
+                    </div>
+                    ${prediction.probability_xgb !== undefined ? `
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">XGBoost Probability</span>
+                        <span>${(parseFloat(prediction.probability_xgb) * 100).toFixed(2)}%</span>
+                    </div>
+                    ` : ''}
+                    ${prediction.if_score !== undefined ? `
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Anomaly Score</span>
+                        <span>${parseFloat(prediction.if_score).toFixed(4)}</span>
+                    </div>
+                    ` : ''}
+                    <div class="transaction-detail-item">
+                        <span class="transaction-detail-label">Timestamp</span>
+                        <span>${prediction.timestamp || 'N/A'}</span>
+                    </div>
+                </div>
+            `;
+
+            // Insert at the top
+            container.insertBefore(transactionDiv, container.firstChild);
+
+            // Limit to 100 transactions
+            const transactions = container.querySelectorAll('.transaction-item');
+            if (transactions.length > 100) {
+                transactions[transactions.length - 1].remove();
+            }
+        }
+
+        // Load initial transactions on page load
+        async function loadInitialTransactions() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/predictions/latest?limit=20`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch initial transactions');
+                }
+                const data = await response.json();
+                
+                if (data.predictions && data.predictions.length > 0) {
+                    const container = document.getElementById('transactionsContainer');
+                    const emptyState = container.querySelector('.empty-state');
+                    if (emptyState) {
+                        emptyState.remove();
+                    }
+                    
+                    // Add transactions in reverse order (newest first)
+                    data.predictions.reverse().forEach(prediction => {
+                        addTransaction(prediction);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading initial transactions:', error);
+            }
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            checkBackendHealth();
+            // Load initial transactions if on live processing page
+            if (document.getElementById('live-processing').classList.contains('active')) {
+                loadInitialTransactions();
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            stopStreaming();
+        });
+    </script>
+</body>
+</html>
+
