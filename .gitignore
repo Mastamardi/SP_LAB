@@ -2,4 +2,8 @@
 __pycache__/
 .DS_Store
 *.pyc
-
+spark_job/checkpoints/
+notebooks/.ipynb_checkpoints/
+*.crc
+*.log
+*.tmp

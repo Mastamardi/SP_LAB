@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-Time Fraud Detection System</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,37 +14,69 @@
         }
 
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
+            --primary-color: #6366f1;
+            --secondary-color: #4f46e5;
+            --accent-color: #8b5cf6;
             --success-color: #10b981;
             --danger-color: #ef4444;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
+            --warning-color: #f59e0b;
+            --bg-color: #0f172a;
+            --bg-secondary: #1e293b;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-color);
             color: var(--text-primary);
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundShift 20s ease infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
         }
 
         /* Navbar */
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
             padding: 1rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }
 
         .navbar-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -51,33 +85,67 @@
 
         .navbar-brand {
             font-size: 1.5rem;
-            font-weight: bold;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-logo {
+            height: 50px;
+            width: auto;
+            margin-right: 0.5rem;
         }
 
         .navbar-nav {
             display: flex;
             list-style: none;
-            gap: 2rem;
+            gap: 1rem;
         }
 
         .nav-item {
             cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-1);
+            transition: left 0.3s;
+            z-index: -1;
         }
 
         .nav-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-item:hover::before {
+            left: 0;
         }
 
         .nav-item.active {
-            background-color: rgba(255, 255, 255, 0.2);
+            background: var(--gradient-1);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
         }
 
         /* Container */
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -85,83 +153,315 @@
         /* Page Sections */
         .page-section {
             display: none;
+            animation: fadeIn 0.5s ease-in;
         }
 
         .page-section.active {
             display: block;
         }
 
-        /* Header Section */
-        .header-section {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: var(--gradient-1);
+            padding: 4rem 3rem;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3);
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-section h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
             margin-bottom: 2rem;
         }
 
-        .header-section h1 {
-            color: var(--primary-color);
+        /* Team Card */
+        .team-card {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .team-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .team-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
             margin-bottom: 1rem;
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .team-card p {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .team-card strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Enhanced Team Section Styles */
+        .guidance-section {
+            background: linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%);
+            padding: 4rem 3rem;
+            border-radius: 20px;
+            margin: 2.5rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+            text-align: center;
+        }
+
+        .guidance-logo {
+            height: 110px;
+            width: auto;
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.25));
+        }
+
+        .guidance-content h3 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin: 0.25rem 0 0.75rem;
+            color: #1f2937;
+            letter-spacing: 0.02em;
+        }
+
+        .guidance-content p {
+            font-size: 1.6rem;
+            color: #111827;
+            margin: 0;
+            font-weight: 800;
+        }
+
+        .team-members-section {
+            background: var(--card-bg);
+            padding: 3.5rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .team-members-section h3 {
             font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .team-info {
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-top: 1rem;
+        .team-members-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2.5rem;
+            margin-top: 2rem;
         }
 
-        .team-info h3 {
-            color: var(--secondary-color);
+        .team-member-card {
+            background: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .team-member-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(99, 102, 241, 0.3);
+            border-color: var(--primary-color);
+        }
+
+        .member-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            background: var(--gradient-1);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .member-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 0.5rem;
         }
 
-        .team-info p {
-            margin: 0.3rem 0;
-            color: var(--text-primary);
+        .member-usn {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.3rem;
         }
 
-        /* Content Sections */
-        .content-section {
+        .member-email {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            word-break: break-word;
+        }
+
+        /* Content Cards */
+        .content-card {
             background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+            border-radius: 16px;
             margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
-        .content-section h2 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.5rem;
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gradient-1);
+            transform: scaleY(0);
+            transition: transform 0.3s;
         }
 
-        .content-section p {
+        .content-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .content-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .content-card h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .content-card h2::before {
+            content: '';
+            width: 4px;
+            height: 2rem;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .content-card p {
             color: var(--text-secondary);
             margin-bottom: 1rem;
             line-height: 1.8;
+            font-size: 1.05rem;
         }
 
-        .content-section ul {
+        .content-card ul {
             margin-left: 2rem;
             color: var(--text-secondary);
-            line-height: 2;
+            line-height: 2.2;
         }
 
-        .content-section li {
-            margin-bottom: 0.5rem;
+        .content-card li {
+            margin-bottom: 0.8rem;
+            position: relative;
+            padding-left: 1rem;
         }
 
-        /* Live Processing Section */
+        .content-card li::marker {
+            color: var(--primary-color);
+        }
+
+        .content-card strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Live Processing Page */
         .live-processing {
             background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 2.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .live-processing h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .status-indicator {
@@ -171,19 +471,22 @@
             border-radius: 50%;
             margin-right: 8px;
             animation: pulse 2s infinite;
+            box-shadow: 0 0 10px currentColor;
         }
 
         .status-indicator.connected {
             background-color: var(--success-color);
+            color: var(--success-color);
         }
 
         .status-indicator.disconnected {
             background-color: var(--danger-color);
+            color: var(--danger-color);
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.2); }
         }
 
         .controls {
@@ -194,85 +497,182 @@
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.9rem 2rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 1rem;
+            font-weight: 600;
             transition: all 0.3s;
-            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
+            background: var(--gradient-1);
             color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
         }
 
         .btn-primary:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
         }
 
         .btn-success {
-            background-color: var(--success-color);
+            background: var(--gradient-4);
             color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
 
         .btn-success:hover {
-            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
         }
 
-        /* Metrics Display */
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .btn-download {
+            background: var(--gradient-2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+
+        /* Metrics Grid */
         .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .metric-card {
-            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-            padding: 1.5rem;
-            border-radius: 8px;
-            border-left: 4px solid var(--primary-color);
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-1);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .metric-card:hover::before {
+            transform: scaleX(1);
         }
 
         .metric-label {
             font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
         }
 
         .metric-value {
-            font-size: 1.8rem;
-            font-weight: bold;
+            font-size: 2.2rem;
+            font-weight: 800;
             color: var(--text-primary);
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        /* Transactions Table */
+        /* Transactions Container */
         .transactions-container {
             max-height: 600px;
             overflow-y: auto;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            padding: 1rem;
+        }
+
+        .transactions-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .transactions-container::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+            border-radius: 4px;
+        }
+
+        .transactions-container::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
         }
 
         .transaction-item {
-            padding: 1rem;
+            padding: 1.5rem;
             border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.3s;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: var(--bg-secondary);
         }
 
         .transaction-item:hover {
-            background-color: #f8fafc;
+            background: var(--card-hover);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .transaction-item:last-child {
@@ -283,38 +683,40 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         .transaction-id {
-            font-weight: bold;
+            font-weight: 700;
             color: var(--text-primary);
+            font-size: 1.1rem;
         }
 
         .prediction-badge {
-            padding: 0.4rem 1rem;
+            padding: 0.5rem 1.2rem;
             border-radius: 20px;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
 
         .prediction-normal {
-            background-color: #d1fae5;
-            color: #065f46;
+            background: var(--gradient-4);
+            color: white;
         }
 
         .prediction-faulty {
-            background-color: #fee2e2;
-            color: #991b1b;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
         }
 
         .transaction-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
         }
 
         .transaction-detail-item {
@@ -324,57 +726,118 @@
 
         .transaction-detail-label {
             font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .transaction-detail-value {
             color: var(--text-primary);
-            margin-bottom: 0.2rem;
+            font-weight: 500;
         }
 
         .empty-state {
             text-align: center;
-            padding: 3rem;
-            color: var(--text-secondary);
+            padding: 4rem 2rem;
+            color: var(--text-muted);
         }
 
         .empty-state-icon {
-            font-size: 3rem;
+            font-size: 4rem;
             margin-bottom: 1rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .error-message, .info-message {
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .error-message {
-            background-color: #fee2e2;
-            color: #991b1b;
-            padding: 1rem;
-            border-radius: 5px;
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border-color: var(--danger-color);
+        }
+
+        .info-message {
+            background: rgba(59, 130, 246, 0.1);
+            color: #93c5fd;
+            border-color: var(--primary-color);
+        }
+
+        .download-section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .download-section.active {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .download-stats {
+            display: flex;
+            gap: 2rem;
             margin-bottom: 1rem;
-            border-left: 4px solid var(--danger-color);
+            flex-wrap: wrap;
         }
 
-        /* Loading Spinner */
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+        .download-stat {
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .download-stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .download-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-top: 0.5rem;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2rem;
+            }
+            
             .navbar-container {
                 flex-direction: column;
                 gap: 1rem;
-            }
-
-            .navbar-nav {
-                flex-direction: column;
-                gap: 0.5rem;
-                width: 100%;
             }
 
             .container {
@@ -391,7 +854,10 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-container">
-            <div class="navbar-brand">🔒 Fraud Detection System</div>
+            <div class="navbar-brand">
+                <img src="Website Logo.png" alt="Logo" class="navbar-logo">
+                🛡️ Fraud Detection System
+            </div>
             <ul class="navbar-nav">
                 <li class="nav-item active" onclick="showPage('home')">Home</li>
                 <li class="nav-item" onclick="showPage('live-processing')">Live Processing</li>
@@ -402,23 +868,54 @@
     <!-- Home Page -->
     <div id="home" class="page-section active">
         <div class="container">
-            <!-- Header Section -->
-            <div class="header-section">
-                <h1>Real-Time Fraud Detection System</h1>
-                <div class="team-info">
-                    <h3>Under Guidance</h3>
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h1>Real-Time Fraud Detection System</h1>
+                    <p>Advanced ML-powered transaction monitoring with instant anomaly detection</p>
+                </div>
+            </div>
+
+            <!-- Project Guidance Section -->
+            <div class="guidance-section">
+                <img src="Website Logo.png" alt="College Logo" class="guidance-logo">
+                <div class="guidance-content">
+                    <h3>Project Guide</h3>
                     <p><strong>Prof. Anupama Kumar</strong></p>
-                    
-                    <h3 style="margin-top: 1.5rem;">Project Made By</h3>
-                    <p><strong>Omkar Babu Mastamardi</strong> - USN: 1RV23AI403</p>
-                    <p><strong>Roopa Iranna Bagalkoti</strong> - USN: 1RV23AI404</p>
-                    <p><strong>Pranshu Bhat</strong> - USN: 1RV22AI071</p>
+                    <p style="margin-top: 1.5rem; font-size: 1.1rem; color: #000000; line-height: 1.8;">
+                        We extend our sincere gratitude to <strong style="font-size: 1.3rem; color: #000000;">Prof. Anupama Kumar</strong> for her invaluable guidance and support throughout this project. Her expertise and mentorship have been instrumental in the successful development of this system.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Team Members Section -->
+            <div class="team-members-section">
+                <h3>👥 About Us</h3>
+                <div class="team-members-grid">
+                    <div class="team-member-card">
+                        <div class="member-avatar">OM</div>
+                        <div class="member-name">Omkar Babu Mastamardi</div>
+                        <div class="member-usn">USN: 1RV23AI403</div>
+                        <div class="member-email">omkarbm.a23@rvce.edu.in</div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="member-avatar">RB</div>
+                        <div class="member-name">Roopa Iranna Bagalkoti</div>
+                        <div class="member-usn">USN: 1RV23AI404</div>
+                        <div class="member-email">roopairanna.a23@rvce.edu.in</div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="member-avatar">PB</div>
+                        <div class="member-name">Pranshu Bhat</div>
+                        <div class="member-usn">USN: 1RV22AI071</div>
+                        <div class="member-email">pranshubhat.a22@rvce.edu.in</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Project Flow -->
-            <div class="content-section">
-                <h2>1. Project Flow</h2>
+            <div class="content-card">
+                <h2>📊 Project Flow</h2>
                 <p>The system follows a streamlined pipeline for real-time fraud detection:</p>
                 <ul>
                     <li><strong>Input Data → Continuous Stream:</strong> Transaction data is continuously ingested from Kafka topics, ensuring a steady flow of real-time data.</li>
@@ -429,8 +926,8 @@
             </div>
 
             <!-- Problem Statement -->
-            <div class="content-section">
-                <h2>2. Problem Statement</h2>
+            <div class="content-card">
+                <h2>🎯 Problem Statement</h2>
                 <p>In today's digital economy, financial transactions occur at an unprecedented scale and speed. Traditional batch processing systems are insufficient for detecting fraudulent activities in real-time, leading to:</p>
                 <ul>
                     <li>Delayed fraud detection, allowing malicious transactions to complete before intervention</li>
@@ -442,8 +939,8 @@
             </div>
 
             <!-- Objectives -->
-            <div class="content-section">
-                <h2>3. Objectives</h2>
+            <div class="content-card">
+                <h2>🎯 Objectives</h2>
                 <p>The primary objectives of this system are:</p>
                 <ul>
                     <li><strong>Real-time Data Processing:</strong> Process streaming transaction data with minimal latency using Apache Spark Streaming and Kafka.</li>
@@ -454,8 +951,8 @@
             </div>
 
             <!-- Methodology -->
-            <div class="content-section">
-                <h2>4. Methodology</h2>
+            <div class="content-card">
+                <h2>⚙️ Methodology</h2>
                 <p>The system architecture implements a microservices-based approach:</p>
                 <ul>
                     <li><strong>Data Ingestion:</strong> Transaction data is continuously received from Kafka topics, ensuring high-throughput data streaming.</li>
@@ -466,8 +963,8 @@
             </div>
 
             <!-- Conclusion -->
-            <div class="content-section">
-                <h2>5. Conclusion</h2>
+            <div class="content-card">
+                <h2>✅ Conclusion</h2>
                 <p>This system efficiently detects fraudulent transactions using a combination of machine learning models and continuous stream processing. By leveraging Apache Spark for distributed processing, Redis for fast data access, and modern web technologies for real-time visualization, the system provides:</p>
                 <ul>
                     <li>Sub-second latency in fraud detection</li>
@@ -484,22 +981,45 @@
     <div id="live-processing" class="page-section">
         <div class="container">
             <div class="live-processing">
-                <h1 style="color: var(--primary-color); margin-bottom: 1rem;">Real-Time Transaction Processing</h1>
+                <h1>⚡ Real-Time Transaction Processing</h1>
                 
                 <!-- Connection Status -->
-                <div style="margin-bottom: 1.5rem;">
+                <div style="margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 600;">
                     <span class="status-indicator disconnected" id="statusIndicator"></span>
                     <span id="statusText">Disconnected</span>
                 </div>
 
-                <!-- Error Message -->
+                <!-- Error/Info Message -->
                 <div id="errorMessage" style="display: none;"></div>
 
                 <!-- Controls -->
                 <div class="controls">
-                    <button class="btn btn-success" onclick="startStreaming()">Start Streaming</button>
-                    <button class="btn btn-danger" onclick="stopStreaming()">Stop Streaming</button>
-                    <button class="btn btn-primary" onclick="refreshMetrics()">Refresh Metrics</button>
+                    <button class="btn btn-success" onclick="startStreaming()"><span>▶ Start Streaming</span></button>
+                    <button class="btn btn-danger" onclick="stopStreaming()"><span>⏹ Stop Streaming</span></button>
+                    <button class="btn btn-primary" onclick="refreshMetrics()"><span>🔄 Refresh Metrics</span></button>
+                </div>
+
+                <!-- Download Section -->
+                <div id="downloadSection" class="download-section">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">📥 Download Results</h3>
+                    <div class="download-stats">
+                        <div class="download-stat">
+                            <div class="download-stat-label">Total Transactions</div>
+                            <div class="download-stat-value" id="totalTransactions">0</div>
+                        </div>
+                        <div class="download-stat">
+                            <div class="download-stat-label">Faulty Transactions</div>
+                            <div class="download-stat-value" id="faultyTransactions">0</div>
+                        </div>
+                        <div class="download-stat">
+                            <div class="download-stat-label">Normal Transactions</div>
+                            <div class="download-stat-value" id="normalTransactions">0</div>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button class="btn btn-download" onclick="downloadResults('csv')"><span>📄 Download as CSV</span></button>
+                        <button class="btn btn-download" onclick="downloadResults('json')"><span>📋 Download as JSON</span></button>
+                    </div>
                 </div>
 
                 <!-- Metrics -->
@@ -507,17 +1027,17 @@
                     <div class="metric-card">
                         <div class="metric-label">Throughput</div>
                         <div class="metric-value" id="throughput">0.00</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary);">msgs/s</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">msgs/s</div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-label">Processing Latency</div>
                         <div class="metric-value" id="latency">0.0</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary);">ms</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">ms</div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-label">Inference Rate</div>
                         <div class="metric-value" id="inferenceRate">0.00</div>
-                        <div style="font-size: 0.8rem; color: var(--text-secondary);">/s</div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">/s</div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-label">Precision</div>
@@ -527,10 +1047,17 @@
                         <div class="metric-label">Recall</div>
                         <div class="metric-value" id="recall">0.00</div>
                     </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Overall Avg Accuracy</div>
+                        <div class="metric-value" id="accuracy">0.00</div>
+                    </div>
                 </div>
 
                 <!-- Transactions List -->
-                <h2 style="color: var(--primary-color); margin-top: 2rem; margin-bottom: 1rem;">Live Transactions</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; margin-bottom: 1rem;">
+                    <h2 style="color: var(--text-primary); font-size: 1.8rem; margin: 0;">📊 Live Transactions</h2>
+                    <button class="btn btn-danger" onclick="clearTransactions()" style="padding: 0.7rem 1.5rem; font-size: 0.9rem;"><span>🗑️ Clear Transactions</span></button>
+                </div>
                 <div class="transactions-container" id="transactionsContainer">
                     <div class="empty-state">
                         <div class="empty-state-icon">📊</div>
@@ -543,32 +1070,27 @@
 
     <script>
         // Configuration
-        // To change the backend URL, modify the API_BASE_URL below
-        // Example: const API_BASE_URL = 'http://your-server:5000/api';
         const API_BASE_URL = window.API_BASE_URL || 'http://localhost:5000/api';
         let eventSource = null;
         let metricsInterval = null;
         let isStreaming = false;
+        let transactionsData = []; // Store transactions for download
 
         // Page Navigation
         function showPage(pageId) {
-            // Hide all pages
             document.querySelectorAll('.page-section').forEach(section => {
                 section.classList.remove('active');
             });
-            
-            // Show selected page
             document.getElementById(pageId).classList.add('active');
             
-            // Update navbar active state
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
             event.target.classList.add('active');
 
-            // If switching to live processing, check connection
             if (pageId === 'live-processing' && !isStreaming) {
                 checkBackendHealth();
+                loadInitialTransactions(); // Load existing transactions when page opens
             }
         }
 
@@ -595,7 +1117,7 @@
             if (connected) {
                 indicator.classList.remove('disconnected');
                 indicator.classList.add('connected');
-                statusText.textContent = 'Connected';
+                statusText.textContent = message || 'Connected';
             } else {
                 indicator.classList.remove('connected');
                 indicator.classList.add('disconnected');
@@ -611,44 +1133,85 @@
             errorDiv.style.display = 'block';
         }
 
-        // Hide error message
+        // Show info message
+        function showInfo(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.className = 'info-message';
+            errorDiv.textContent = `ℹ️ ${message}`;
+            errorDiv.style.display = 'block';
+        }
+
+        // Hide error/info message
         function hideError() {
             document.getElementById('errorMessage').style.display = 'none';
         }
 
         // Start streaming
         function startStreaming() {
-            if (isStreaming) {
-                return;
-            }
+            if (isStreaming) return;
 
             hideError();
             isStreaming = true;
+
+            // Reset UI and in-memory data so each run starts from 0
+            transactionsData = [];
+            const container = document.getElementById('transactionsContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <p>No transactions yet. Streaming will appear here in real time.</p>
+                </div>
+            `;
+            document.getElementById('downloadSection').classList.remove('active');
             updateConnectionStatus(true, 'Connecting...');
 
-            // Start Server-Sent Events stream
             eventSource = new EventSource(`${API_BASE_URL}/predictions/stream`);
             
             eventSource.onopen = () => {
                 updateConnectionStatus(true, 'Streaming...');
+                hideError();
             };
 
             eventSource.onmessage = (event) => {
                 try {
+                    // Skip heartbeat messages
+                    if (event.data.trim() === '' || event.data.startsWith(':')) {
+                        return;
+                    }
                     const prediction = JSON.parse(event.data);
+                    // Add transaction to UI (will appear at top with animation)
                     addTransaction(prediction);
+                    transactionsData.push(prediction); // Store for download
+                    hideError();
                 } catch (error) {
                     console.error('Error parsing prediction:', error);
                 }
             };
 
+            eventSource.addEventListener('error', (event) => {
+                try {
+                    const errorData = JSON.parse(event.data);
+                    const message = errorData.message || errorData.error || 'Connection issue';
+                    
+                    if (message.toLowerCase().includes('waiting') || message.toLowerCase().includes('redis not connected')) {
+                        updateConnectionStatus(false, 'Waiting for Redis...');
+                        showInfo('Waiting for Redis connection. Please start Docker services: docker compose up -d');
+                    } else {
+                        updateConnectionStatus(false, message);
+                        showError(message);
+                    }
+                } catch (e) {
+                    console.error('Error parsing error event:', e);
+                }
+            });
+
             eventSource.onerror = (error) => {
-                console.error('SSE error:', error);
-                updateConnectionStatus(false, 'Stream error');
-                showError('Failed to maintain connection. Please check backend.');
+                if (eventSource.readyState === EventSource.CLOSED) {
+                    updateConnectionStatus(false, 'Connection closed');
+                    showError('Connection closed. Click "Start Streaming" to reconnect.');
+                }
             };
 
-            // Start metrics refresh
             refreshMetrics();
             metricsInterval = setInterval(refreshMetrics, 2000);
         }
@@ -668,15 +1231,102 @@
             }
             
             updateConnectionStatus(false, 'Stopped');
+            
+            // Show download section if we have data
+            if (transactionsData.length > 0) {
+                updateDownloadStats();
+                document.getElementById('downloadSection').classList.add('active');
+            }
+        }
+
+        // Clear all transactions
+        function clearTransactions() {
+            // Clear the UI
+            const container = document.getElementById('transactionsContainer');
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">📊</div>
+                    <p>No transactions yet. Click "Start Streaming" to begin receiving real-time data.</p>
+                </div>
+            `;
+            
+            // Clear the stored data
+            transactionsData = [];
+            
+            // Hide download section
+            document.getElementById('downloadSection').classList.remove('active');
+            
+            // Reset download stats
+            document.getElementById('totalTransactions').textContent = '0';
+            document.getElementById('faultyTransactions').textContent = '0';
+            document.getElementById('normalTransactions').textContent = '0';
+            
+            // If streaming is active, stop it first
+            if (isStreaming) {
+                stopStreaming();
+            }
+        }
+
+        // Update download statistics
+        function updateDownloadStats() {
+            const total = transactionsData.length;
+            const faulty = transactionsData.filter(t => t.final_decision === 1 || t.final_decision === '1').length;
+            const normal = total - faulty;
+            
+            document.getElementById('totalTransactions').textContent = total;
+            document.getElementById('faultyTransactions').textContent = faulty;
+            document.getElementById('normalTransactions').textContent = normal;
+        }
+
+        // Download results
+        function downloadResults(format) {
+            if (transactionsData.length === 0) {
+                alert('No data to download');
+                return;
+            }
+
+            let content, filename, mimeType;
+
+            if (format === 'csv') {
+                // Convert to CSV
+                const headers = Object.keys(transactionsData[0]);
+                const csvRows = [
+                    headers.join(','),
+                    ...transactionsData.map(row => 
+                        headers.map(header => {
+                            const value = row[header];
+                            return typeof value === 'string' && value.includes(',') 
+                                ? `"${value}"` 
+                                : value;
+                        }).join(',')
+                    )
+                ];
+                content = csvRows.join('\n');
+                filename = `fraud_detection_results_${new Date().toISOString().split('T')[0]}.csv`;
+                mimeType = 'text/csv';
+            } else {
+                // JSON format
+                content = JSON.stringify(transactionsData, null, 2);
+                filename = `fraud_detection_results_${new Date().toISOString().split('T')[0]}.json`;
+                mimeType = 'application/json';
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         // Refresh metrics
         async function refreshMetrics() {
             try {
                 const response = await fetch(`${API_BASE_URL}/metrics`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch metrics');
-                }
+                if (!response.ok) throw new Error('Failed to fetch metrics');
                 const metrics = await response.json();
                 
                 document.getElementById('throughput').textContent = metrics.throughput.toFixed(2);
@@ -684,6 +1334,9 @@
                 document.getElementById('inferenceRate').textContent = metrics.inference_rate.toFixed(2);
                 document.getElementById('precision').textContent = metrics.precision.toFixed(2);
                 document.getElementById('recall').textContent = metrics.recall.toFixed(2);
+                if (metrics.accuracy !== undefined) {
+                    document.getElementById('accuracy').textContent = metrics.accuracy.toFixed(2);
+                }
                 
                 hideError();
             } catch (error) {
@@ -697,14 +1350,18 @@
         // Add transaction to UI
         function addTransaction(prediction) {
             const container = document.getElementById('transactionsContainer');
-            
-            // Remove empty state if present
             const emptyState = container.querySelector('.empty-state');
-            if (emptyState) {
-                emptyState.remove();
+            if (emptyState) emptyState.remove();
+
+            // Add new transaction at the top of the list
+            // Keep maximum 100 transactions visible for performance
+            const maxTransactions = 100;
+            const existingTransactions = container.querySelectorAll('.transaction-item');
+            if (existingTransactions.length >= maxTransactions) {
+                // Remove oldest transaction
+                existingTransactions[existingTransactions.length - 1].remove();
             }
 
-            // Create transaction item
             const transactionDiv = document.createElement('div');
             transactionDiv.className = 'transaction-item';
             
@@ -720,76 +1377,76 @@
                 <div class="transaction-details">
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Customer ID</span>
-                        <span>${prediction.customer_id || 'N/A'}</span>
+                        <span class="transaction-detail-value">${prediction.customer_id || 'N/A'}</span>
                     </div>
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Amount</span>
-                        <span>$${parseFloat(prediction.amount || 0).toFixed(2)}</span>
+                        <span class="transaction-detail-value">$${parseFloat(prediction.amount || 0).toFixed(2)}</span>
                     </div>
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Merchant</span>
-                        <span>${prediction.merchant_id || 'N/A'}</span>
+                        <span class="transaction-detail-value">${prediction.merchant_id || 'N/A'}</span>
                     </div>
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Category</span>
-                        <span>${prediction.category || 'N/A'}</span>
+                        <span class="transaction-detail-value">${prediction.category || 'N/A'}</span>
                     </div>
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Location</span>
-                        <span>${prediction.location || 'N/A'}</span>
+                        <span class="transaction-detail-value">${prediction.location || 'N/A'}</span>
                     </div>
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Device</span>
-                        <span>${prediction.device_type || 'N/A'}</span>
+                        <span class="transaction-detail-value">${prediction.device_type || 'N/A'}</span>
                     </div>
                     ${prediction.probability_xgb !== undefined ? `
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">XGBoost Probability</span>
-                        <span>${(parseFloat(prediction.probability_xgb) * 100).toFixed(2)}%</span>
+                        <span class="transaction-detail-value">${(parseFloat(prediction.probability_xgb) * 100).toFixed(2)}%</span>
                     </div>
                     ` : ''}
                     ${prediction.if_score !== undefined ? `
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Anomaly Score</span>
-                        <span>${parseFloat(prediction.if_score).toFixed(4)}</span>
+                        <span class="transaction-detail-value">${parseFloat(prediction.if_score).toFixed(4)}</span>
                     </div>
                     ` : ''}
                     <div class="transaction-detail-item">
                         <span class="transaction-detail-label">Timestamp</span>
-                        <span>${prediction.timestamp || 'N/A'}</span>
+                        <span class="transaction-detail-value">${prediction.timestamp || 'N/A'}</span>
                     </div>
                 </div>
             `;
 
-            // Insert at the top
+            // Insert at the top (most recent first)
             container.insertBefore(transactionDiv, container.firstChild);
-
-            // Limit to 100 transactions
-            const transactions = container.querySelectorAll('.transaction-item');
-            if (transactions.length > 100) {
-                transactions[transactions.length - 1].remove();
-            }
+            
+            // Add animation for new transaction
+            transactionDiv.style.opacity = '0';
+            transactionDiv.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                transactionDiv.style.transition = 'all 0.3s ease';
+                transactionDiv.style.opacity = '1';
+                transactionDiv.style.transform = 'translateY(0)';
+            }, 10);
         }
 
-        // Load initial transactions on page load
+        // Load initial transactions
         async function loadInitialTransactions() {
             try {
                 const response = await fetch(`${API_BASE_URL}/predictions/latest?limit=20`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch initial transactions');
-                }
+                if (!response.ok) throw new Error('Failed to fetch initial transactions');
                 const data = await response.json();
                 
                 if (data.predictions && data.predictions.length > 0) {
                     const container = document.getElementById('transactionsContainer');
                     const emptyState = container.querySelector('.empty-state');
-                    if (emptyState) {
-                        emptyState.remove();
-                    }
+                    if (emptyState) emptyState.remove();
                     
-                    // Add transactions in reverse order (newest first)
+                    // Reverse so newest appears first (inserted at top)
                     data.predictions.reverse().forEach(prediction => {
                         addTransaction(prediction);
+                        transactionsData.push(prediction);
                     });
                 }
             } catch (error) {
@@ -797,20 +1454,14 @@
             }
         }
 
-        // Initialize on page load
+        // Initialize
         window.addEventListener('load', () => {
             checkBackendHealth();
-            // Load initial transactions if on live processing page
-            if (document.getElementById('live-processing').classList.contains('active')) {
-                loadInitialTransactions();
-            }
         });
 
-        // Cleanup on page unload
         window.addEventListener('beforeunload', () => {
             stopStreaming();
         });
     </script>
 </body>
 </html>
-

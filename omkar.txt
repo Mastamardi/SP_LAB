@@ -1,0 +1,127 @@
+================================================================================
+FRAUD DETECTION SYSTEM - QUICK START GUIDE
+================================================================================
+Created for: Omkar Babu Mastamardi
+
+================================================================================
+STEP 1: START DOCKER SERVICES (Redis, Grafana, Kafka, Prometheus)
+================================================================================
+
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy"
+docker compose up -d
+
+Wait 10-15 seconds, then verify:
+docker compose ps
+
+You should see: zookeeper, kafka, redis, prometheus, grafana (all running)
+
+================================================================================
+STEP 2: START KAFKA PRODUCER (Stream Data)
+================================================================================
+
+Open Terminal 1:
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy"
+source .venv/bin/activate
+python kafka_producer/producer.py --csv Real_fraud_dataset.csv --bootstrap localhost:9092 --topic transactions --rate 5 --loop
+
+Keep this running.
+
+================================================================================
+STEP 3: START SPARK STREAMING JOB (Fraud Detection)
+================================================================================
+
+Open Terminal 2:
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy"
+source .venv/bin/activate
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 spark_job/streaming_job.py --bootstrap localhost:9092 --input_topic transactions --alerts_topic fraud_alerts --redis_host localhost --redis_port 6379 --prometheus_port 8000 --models_dir models/artifacts
+
+Keep this running.
+
+================================================================================
+STEP 4: START BACKEND API SERVER
+================================================================================
+
+Open Terminal 3:
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy"
+source .venv/bin/activate
+python backend_api/server.py
+
+You should see: "Running on http://0.0.0.0:5000"
+Keep this running.
+
+================================================================================
+STEP 5: START WEB APPLICATION FRONTEND
+================================================================================
+
+Open Terminal 4:
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy"
+python -m http.server 8080
+
+You should see: "Serving HTTP on :: port 8080"
+Keep this running.
+
+================================================================================
+STEP 6: ACCESS THE APPLICATION
+================================================================================
+
+Open browser: http://localhost:8080
+
+1. Click "Live Processing" in navigation
+2. Click "Start Streaming"
+3. Watch transactions appear in real-time!
+
+================================================================================
+ACCESS SERVICES
+================================================================================
+
+Web Application:    http://localhost:8080
+Backend API:        http://localhost:5000
+Grafana:            http://localhost:3000 (admin/admin)
+Prometheus:         http://localhost:9090
+
+================================================================================
+STOP EVERYTHING
+================================================================================
+
+Press Ctrl+C in each terminal, OR run:
+pkill -f "kafka_producer/producer.py"
+pkill -f "spark_job/streaming_job.py"
+pkill -f "backend_api/server.py"
+pkill -f "http.server"
+pkill -f "spark-submit"
+docker compose down
+
+================================================================================
+QUICK VERIFICATION
+================================================================================
+
+# Check all services are running:
+docker compose ps
+ps aux | grep "producer.py" | grep -v grep
+ps aux | grep "streaming_job.py" | grep -v grep
+ps aux | grep "backend_api/server.py" | grep -v grep
+ps aux | grep "http.server" | grep -v grep
+
+# Test backend:
+curl http://localhost:5000/api/health
+
+================================================================================
+ONE-LINE PROMPT FOR YOU (FOR NEXT TIME)
+================================================================================
+
+Next time you open this project, you can just tell the assistant:
+
+run the full fraud detection pipeline end-to-end (Docker, Kafka producer, Spark, backend API, frontend, Grafana, Redis)”
+What I’ll do when you say this:
+Start Docker services (Kafka, Redis, Prometheus, Grafana, Zookeeper)
+Start the Kafka producer
+Start the Spark streaming job
+Start the backend API server
+Start the frontend on port 8080
+
+after ruuning give me the link for everything like front end backend and grafana 
+
+You do NOT need to give separate permissions or commands for each service;
+one prompt is enough and I will run EVERYTHING for you.
+
+================================================================================

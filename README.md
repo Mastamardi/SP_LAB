@@ -1,4 +1,4 @@
-## Realtime Fraud Detection Pipeline (Kafka + Spark + ML + Redis + Prometheus + Grafana + Streamlit)
+## Realtime Fraud Detection Pipeline (Kafka + Spark + ML + Redis + Prometheus + Grafana + Web Application)
 
 ### Prerequisites
 - Docker & Docker Compose
@@ -54,16 +54,7 @@ spark-submit \
   --models_dir models/artifacts
 ```
 
-### 6) Streamlit Dashboard (Optional)
-```bash
-streamlit run streamlit_app/app.py \
-  -- \
-  --redis_host localhost \
-  --redis_port 6379 \
-  --prometheus_url http://localhost:9090
-```
-
-### 7) Web Application (HTML/CSS/JavaScript)
+### 6) Web Application (HTML/CSS/JavaScript)
 
 #### Start Backend API Server
 ```bash

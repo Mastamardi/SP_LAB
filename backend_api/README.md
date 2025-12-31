@@ -55,3 +55,34 @@ The server will start on `http://localhost:5000`
 
 CORS is enabled to allow the frontend to connect from any origin. For production, restrict this appropriately.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

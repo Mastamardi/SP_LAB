@@ -142,6 +142,7 @@ def main():
 		.option('kafka.bootstrap.servers', args.bootstrap)
 		.option('subscribe', args.input_topic)
 		.option('startingOffsets', 'latest')
+		.option('failOnDataLoss', 'false')
 		.load()
 	)
 	parsed = df_raw.select(F.col('value').cast('string').alias('json_str')) \

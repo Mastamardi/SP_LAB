@@ -34,18 +34,15 @@ nohup spark-submit \
   --prometheus_port 8000 \
   --models_dir models/artifacts > /tmp/spark_job.out 2>&1 &
 
-# 4) Start Streamlit Dashboard
-cd "/Users/omkarmastamardi/Desktop/Sp Lab" && \
-nohup streamlit run streamlit_app/app.py -- \
-  --redis_host localhost \
-  --redis_port 6379 \
-  --prometheus_url http://localhost:9090 > /tmp/streamlit.out 2>&1 &
+# 4) Start Backend API Server
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy" && \
+nohup python backend_api/server.py > /tmp/backend_api.out 2>&1 &
 
 # 5) Quick checks
-cd "/Users/omkarmastamardi/Desktop/Sp Lab" && docker compose ps
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy" && docker compose ps
 ps aux | grep "producer.py" | grep -v grep
 ps aux | grep "streaming_job.py" | grep -v grep
-ps aux | grep "streamlit" | grep -v grep
+ps aux | grep "backend_api/server.py" | grep -v grep
 curl -s http://localhost:8000/metrics | head -20
 
 # 6) Peek Kafka data (transactions)
@@ -57,9 +54,9 @@ docker exec -it splab-kafka-1 bash -lc "kafka-console-consumer --bootstrap-serve
 # 8) Stop everything cleanly
 pkill -f "kafka_producer/producer.py" || true
 pkill -f "spark_job/streaming_job.py" || true
-pkill -f "streamlit run streamlit_app/app.py" || true
+pkill -f "backend_api/server.py" || true
 pkill -f "spark-submit" || true
-cd "/Users/omkarmastamardi/Desktop/Sp Lab" && docker compose down
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy" && docker compose down
 
 # 9) Optional: reset Spark checkpoints (use if offsets get out of range)
 rm -rf "/Users/omkarmastamardi/Desktop/Sp Lab/spark_job/checkpoints" \

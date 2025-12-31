@@ -55,30 +55,42 @@ This processes transactions from Kafka and performs fraud detection.
 
 ================================================================================
 
-STEP 4: Start Streamlit Dashboard
+STEP 4: Start Backend API Server
 ----------------------------------
 Open ANOTHER terminal window/tab and run:
 
-cd "/Users/omkarmastamardi/Desktop/Sp Lab"
-streamlit run streamlit_app/app.py \
-  -- \
-  --redis_host localhost \
-  --redis_port 6379 \
-  --prometheus_url http://localhost:9090
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy"
+python backend_api/server.py
 
-The dashboard will be available at: http://localhost:8501
+The API server will be available at: http://localhost:5000
 
 ================================================================================
 
-STEP 5: Access Your Services
+STEP 5: Start Web Application Frontend
+----------------------------------------
+Open ANOTHER terminal window/tab and run:
+
+cd "/Users/omkarmastamardi/Desktop/Sp Lab copy"
+python -m http.server 8080
+
+Then open http://localhost:8080 in your browser
+
+================================================================================
+
+STEP 6: Access Your Services
 -----------------------------
 
-1. Streamlit Dashboard: http://localhost:8501
+1. Web Application: http://localhost:8080
    - Real-time fraud detection dashboard
    - Transaction predictions with visual highlights
    - Live metrics (throughput, latency, precision, recall)
+   - Download results as CSV/JSON
 
-2. Grafana: http://localhost:3000
+2. Backend API: http://localhost:5000
+   - REST API endpoints for predictions and metrics
+   - Server-Sent Events for real-time streaming
+
+3. Grafana: http://localhost:3000
    - Login: admin / admin
    - Add Prometheus data source: http://prometheus:9090
    - Import dashboard from: grafana/dashboard.json
@@ -107,8 +119,8 @@ ps aux | grep "producer.py" | grep -v grep
 # Check if Spark job is running
 ps aux | grep "streaming_job.py" | grep -v grep
 
-# Check if Streamlit is running
-ps aux | grep "streamlit" | grep -v grep
+# Check if Backend API is running
+ps aux | grep "backend_api/server.py" | grep -v grep
 
 # Test Prometheus scraping
 curl http://localhost:8000/metrics | head -20
@@ -121,8 +133,9 @@ TO STOP ALL SERVICES
 # Stop Python/Spark services
 pkill -f "kafka_producer/producer.py"
 pkill -f "spark_job/streaming_job.py"
-pkill -f "streamlit run streamlit_app/app.py"
+pkill -f "backend_api/server.py"
 pkill -f "spark-submit"
+pkill -f "http.server"
 
 # Stop Docker services
 cd "/Users/omkarmastamardi/Desktop/Sp Lab"
@@ -138,9 +151,9 @@ TROUBLESHOOTING
    - Check Prometheus config: metrics/prometheus.yml
    - Restart Prometheus: docker compose restart prometheus
 
-2. If Streamlit shows errors:
-   - Make sure the file has correct indentation
+2. If Backend API shows errors:
    - Check that Redis is running: docker compose ps | grep redis
+   - Verify API is accessible: curl http://localhost:5000/api/health
 
 3. If no data in Grafana:
    - Ensure Prometheus data source is added (http://prometheus:9090)
@@ -158,7 +171,7 @@ NOTES
 - The producer runs in a loop, continuously streaming the dataset
 - Spark processes messages in micro-batches
 - Prometheus scrapes metrics every 1 second
-- Streamlit dashboard auto-refreshes every 1 second
+- Web application uses Server-Sent Events for real-time updates
 - All services run independently - you can stop/restart them individually
 
 ================================================================================
